@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Weliza | Admin</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="weliza-icon-512.png">
+  <link rel="icon" type="image/png" href="weliza-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Weliza">
+  <meta name="theme-color" content="#1F5138">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- ═══ AUTH SCREEN ═══ -->
+  <div id="authScreen" class="auth-screen" style="display:none;position:fixed;inset:0;z-index:9999;">
+    <div class="auth-card">
+      <img src="weliza-logo-full.png" alt="Weliza" class="auth-logo">
+      <div class="auth-sub">Admin Portal</div>
+      <form id="authForm" class="auth-form">
+        <label class="field-label" style="display:block;margin-bottom:6px;">Password</label>
+        <input type="password" id="authPassword" placeholder="Enter password" autocomplete="current-password" required>
+        <div id="authError" class="auth-error" style="display:none;">Incorrect password — try again.</div>
+        <button type="submit" class="btn btn-gold btn-block" style="margin-top:16px;padding:12px;font-size:14px;">Unlock Dashboard</button>
+      </form>
+      <div style="text-align:center;margin-top:14px;font-size:11px;color:var(--text-3);">🔒 Secure access</div>
+    </div>
+  </div>
+
+  <!-- ═══ ADMIN SHELL ═══ -->
+  <div class="shell" id="adminPanel" style="display:none;">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand" style="padding:10px 16px;justify-content:center;">
+        <img src="weliza-logo-name.png" alt="Weliza Designer" style="height:22px;width:auto;object-fit:contain;">
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-link active" data-tab="dashboard">
+          <i data-lucide="bar-chart-2"></i><span>Dashboard</span>
+        </a>
+        <a class="nav-link" data-tab="invoice-creator">
+          <i data-lucide="file-plus-2"></i><span>New Invoice</span>
+        </a>
+        <a class="nav-link" data-tab="invoices-list">
+          <i data-lucide="receipt"></i><span>Invoices</span>
+        </a>
+        <a class="nav-link" data-tab="purchases">
+          <i data-lucide="package"></i><span>Purchases</span>
+        </a>
+        <a class="nav-link" data-tab="clients">
+          <i data-lucide="briefcase"></i><span>Clients</span>
+        </a>
+        <a class="nav-link" data-tab="dealers">
+          <i data-lucide="truck"></i><span>Dealers</span>
+        </a>
+        <a class="nav-link" data-tab="workers">
+          <i data-lucide="users"></i><span>Workers</span>
+        </a>
+        <a class="nav-link" data-tab="expenses">
+          <i data-lucide="receipt"></i><span>Expenses</span>
+        </a>
+        <a class="nav-link" data-tab="inventory">
+          <i data-lucide="package"></i><span>Inventory</span>
+        </a>
+        <a class="nav-link" data-tab="reports">
+          <i data-lucide="bar-chart-2"></i><span>Reports</span>
+        </a>
+        <a class="nav-link" data-tab="settings">
+          <i data-lucide="settings"></i><span>Settings</span>
+        </a>
+      </nav>
+      <button class="nav-link nav-logout" id="logoutBtn">
+        <i data-lucide="log-out"></i><span>Logout</span>
+      </button>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+
+      <!-- GST Filing Reminder Banners -->
+      <div id="gstr1Banner" style="display:none;align-items:center;gap:12px;background:#7c2d12;color:#fed7aa;padding:10px 20px;font-size:13px;position:sticky;top:0;z-index:200;">
+        <i data-lucide="alert-triangle" style="width:16px;height:16px;flex-shrink:0;"></i>
+        <span style="flex:1;font-weight:500;">GSTR-1 due <strong id="gstr1DueText" style="color:#fff;"></strong></span>
+        <button id="gstr1FiledBtn" style="background:rgba(255,255,255,0.15);border:0.5px solid rgba(254,215,170,0.4);color:#fed7aa;border-radius:6px;padding:4px 14px;font-size:12px;cursor:pointer;white-space:nowrap;">Filed ✓</button>
+        <button onclick="document.getElementById('gstr1Banner').style.display='none'" style="background:none;border:none;color:#fed7aa;cursor:pointer;padding:2px;"><i data-lucide="x" style="width:14px;height:14px;"></i></button>
+      </div>
+      <div id="gstr3bBanner" style="display:none;align-items:center;gap:12px;background:#14532d;color:#bbf7d0;padding:10px 20px;font-size:13px;position:sticky;top:0;z-index:199;">
+        <i data-lucide="alert-triangle" style="width:16px;height:16px;flex-shrink:0;"></i>
+        <span style="flex:1;font-weight:500;">GSTR-3B due <strong id="gstr3bDueText" style="color:#fff;"></strong></span>
+        <button id="gstr3bFiledBtn" style="background:rgba(255,255,255,0.15);border:0.5px solid rgba(187,247,208,0.4);color:#bbf7d0;border-radius:6px;padding:4px 14px;font-size:12px;cursor:pointer;white-space:nowrap;">Filed ✓</button>
+        <button onclick="document.getElementById('gstr3bBanner').style.display='none'" style="background:none;border:none;color:#bbf7d0;cursor:pointer;padding:2px;"><i data-lucide="x" style="width:14px;height:14px;"></i></button>
+      </div>
+
+      <!-- Sidebar Overlay -->
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <i data-lucide="menu"></i>
+          </button>
+          <div>
+            <h1 class="page-title" id="currentTabTitle">Dashboard</h1>
+            <p class="page-sub" id="currentTabDesc">Real-time business overview</p>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="user-chip">
+            <div class="user-dot">W</div>
+            <div>
+              <div class="user-name">Weliza Studio</div>
+              <div class="user-role">Owner</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ─── TAB: DASHBOARD ─── -->
+      <section class="view active" id="tab-dashboard">
+
+        <div class="kpi-row">
+          <div class="kpi accent-g">
+            <div class="kpi-label">Gross Sales</div>
+            <div class="kpi-value" id="statGrossSales">₹0.00</div>
+            <i data-lucide="trending-up" class="kpi-icon"></i>
+          </div>
+          <div class="kpi accent-y">
+            <div class="kpi-label">GST Collected</div>
+            <div class="kpi-value" id="statGstOutput">₹0.00</div>
+            <i data-lucide="percent" class="kpi-icon"></i>
+          </div>
+          <div class="kpi accent-b">
+            <div class="kpi-label">GST Input Paid</div>
+            <div class="kpi-value" id="statGstInput">₹0.00</div>
+            <i data-lucide="receipt" class="kpi-icon"></i>
+          </div>
+          <div class="kpi accent-t">
+            <div class="kpi-label">Net GST Payable</div>
+            <div class="kpi-value" id="statGstNet">₹0.00</div>
+            <i data-lucide="wallet" class="kpi-icon"></i>
+          </div>
+          <div class="kpi accent-r">
+            <div class="kpi-label">Outstanding</div>
+            <div class="kpi-value" id="statOutstanding">₹0.00</div>
+            <i data-lucide="alert-circle" class="kpi-icon"></i>
+          </div>
+          <div class="kpi accent-p">
+            <div class="kpi-label">Total Purchase</div>
+            <div class="kpi-value" id="statTotalPurchase">₹0.00</div>
+            <i data-lucide="shopping-cart" class="kpi-icon"></i>
+          </div>
+          <div class="kpi accent-r">
+            <div class="kpi-label">Total Expense</div>
+            <div class="kpi-value" id="statTotalExpenses">₹0.00</div>
+            <i data-lucide="receipt" class="kpi-icon"></i>
+          </div>
+          <div class="kpi accent-p">
+            <div class="kpi-label">Total Spend</div>
+            <div class="kpi-value" id="statTotalSpend">₹0.00</div>
+            <i data-lucide="wallet" class="kpi-icon"></i>
+          </div>
+          <div class="kpi accent-g">
+            <div class="kpi-label">Net Profit</div>
+            <div class="kpi-value" id="statNetProfit">₹0.00</div>
+            <i data-lucide="trending-up" class="kpi-icon"></i>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:10px;">
+          <div class="panel" style="width:100%;">
+            <div class="panel-head">Sales vs Purchases</div>
+            <div class="chart-box" style="height:240px;"><canvas id="salesChart"></canvas></div>
+          </div>
+          <div class="panel" style="width:100%;">
+            <div class="panel-head">GST Output vs Input</div>
+            <div class="chart-box" style="height:240px;"><canvas id="gstChart"></canvas></div>
+          </div>
+        </div>
+
+        <div class="dash-bottom-row">
+          <div class="panel dash-invoices-panel">
+            <div class="panel-head">Recent Invoices</div>
+            <div class="tbl-scroll">
+              <table class="tbl">
+                <thead><tr>
+                  <th>Inv #</th><th>Client</th><th>Date</th><th>Grand Total</th><th>GST</th><th>Status</th>
+                </tr></thead>
+                <tbody id="recentInvoicesTableBody">
+                  <tr><td colspan="6" class="tbl-empty">No recent invoices</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel dash-chart-panel">
+            <div class="panel-head">Revenue by Client</div>
+            <div class="chart-box"><canvas id="clientChart"></canvas></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ─── TAB: INVOICE CREATOR ─── -->
+      <section class="view" id="tab-invoice-creator">
+        <div class="invoice-layout">
+
+          <!-- Left: Form -->
+          <div class="invoice-form-col">
+            <div class="panel">
+              <div class="panel-head">Invoice Details</div>
+              <form id="invoiceForm">
+
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field-label">Client</label>
+                    <div class="field-combo">
+                      <select id="invClientSelect" required>
+                        <option value="">Select client…</option>
+                      </select>
+                      <button type="button" class="btn btn-icon" id="btnAddNewClientInline" title="Type a custom client name">
+                        <i data-lucide="plus"></i>
+                      </button>
+                    </div>
+                    <input class="field-input" type="text" id="invClientCustomName" placeholder="Client name…" style="margin-top:6px;display:none;">
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Invoice No.</label>
+                    <input class="field-input" type="text" id="invNumber" placeholder="WEL-2026-0001" required>
+                  </div>
+                </div>
+
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field-label">Invoice Date</label>
+                    <input class="field-input" type="date" id="invDate" required>
+                  </div>
+                  <input type="hidden" id="invDueDate" value="">
+                </div>
+
+                <div class="section-divider">Line Items</div>
+
+                <div class="items-scroll">
+                  <table class="items-tbl">
+                    <thead><tr>
+                      <th>Item (from Inventory)</th><th>Qty</th><th>Sell Rate ₹</th><th>GST%</th><th></th>
+                    </tr></thead>
+                    <tbody id="invoiceItemsTbody"></tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-ghost btn-sm" id="btnAddItemRow" style="margin-top:8px;">
+                  <i data-lucide="plus"></i> Add line
+                </button>
+
+                <div class="divider"></div>
+
+                <div class="inv-bottom">
+                  <div class="field" style="width:160px;">
+                    <label class="field-label">Payment Status</label>
+                    <select class="field-input" id="invPaymentStatus">
+                      <option value="Pending" selected>Pending</option>
+                      <option value="Paid">Paid</option>
+                    </select>
+                  </div>
+                  <div class="inv-totals">
+                    <div class="tot-row"><span>Taxable</span><strong id="summaryTaxable">₹0.00</strong></div>
+                    <div class="tot-row"><span>GST</span><strong id="summaryGst">₹0.00</strong></div>
+                    <div class="tot-row grand"><span>Grand Total</span><strong id="summaryGrand">₹0.00</strong></div>
+                  </div>
+                </div>
+
+                <div class="field-row" style="margin-top:14px;">
+                  <button type="submit" class="btn btn-gold" style="flex:1;">
+                    <i data-lucide="save"></i> Save Invoice
+                  </button>
+                  <button type="button" class="btn btn-outline" id="btnPrintPreviewBtn" style="flex:1;">
+                    <i data-lucide="printer"></i> Print / PDF
+                  </button>
+                </div>
+
+              </form>
+            </div>
+          </div>
+
+          <!-- Right: Live Preview -->
+          <div class="invoice-preview-col">
+            <div class="panel invoice-preview-panel">
+              <div class="panel-head">Live Preview <span class="panel-badge">PDF ready</span></div>
+              <div class="preview-scroll">
+                <div class="invoice-print-container" id="invoicePrintSheet">
+                  <div class="preview-placeholder">
+                    <i data-lucide="file-text" style="width:32px;height:32px;opacity:0.2;"></i>
+                    <p>Fill in the form to see a live preview</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ─── TAB: INVOICES LIST ─── -->
+      <section class="view" id="tab-invoices-list">
+        <div class="toolbar mb-3">
+          <div class="search-field">
+            <i data-lucide="search"></i>
+            <input type="text" id="searchInvoicesInput" placeholder="Search by invoice no. or client…">
+          </div>
+          <select id="filterInvoiceStatus">
+            <option value="all">All statuses</option>
+            <option value="Paid">Paid</option>
+            <option value="Pending">Pending</option>
+          </select>
+          <button class="btn btn-sm" id="openExternalInvoiceBtn" style="margin-left:auto;">
+            <i data-lucide="upload"></i> Add External Invoice
+          </button>
+        </div>
+        <div class="panel">
+          <div class="panel-table-wrap"><table class="tbl">
+            <thead><tr>
+              <th class="cb-col"><input type="checkbox" id="selectAll_invoicesTableBody"></th>
+              <th>Invoice No</th><th>Client</th><th>Date</th>
+              <th>Taxable</th><th>GST</th><th>Total</th>
+              <th>Status</th><th style="text-align:center;">Actions</th>
+            </tr></thead>
+            <tbody id="invoicesTableBody">
+              <tr><td colspan="9" class="tbl-empty">Loading…</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="panel" style="margin-top:16px;">
+          <div class="panel-head">Outstanding Invoices <span style="font-size:0.7rem;color:#999;font-weight:400;text-transform:none;">— pending payments</span></div>
+          <div class="panel-table-wrap"><table class="tbl">
+            <thead><tr>
+              <th>Invoice No</th><th>Client</th><th>Date</th><th>Total</th><th>Days Overdue</th>
+            </tr></thead>
+            <tbody id="outstandingTableBody">
+              <tr><td colspan="5" class="tbl-empty">Loading…</td></tr>
+            </tbody>
+          </table></div>
+          <div style="display:flex;justify-content:flex-end;padding:10px 16px;border-top:1px solid var(--border-lo);font-weight:700;font-size:0.95rem;">
+            Total Due: <span id="totalDueAmount" style="color:var(--gold);margin-left:10px;">₹0.00</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── TAB: PURCHASES ─── -->
+      <section class="view" id="tab-purchases">
+        <div class="side-form-layout">
+
+          <div class="side-form-col">
+            <div class="panel">
+              <div class="panel-head">Log Purchase</div>
+              <form id="purchaseForm">
+                <div class="field">
+                  <label class="field-label">Supplier (Dealer)</label>
+                  <div class="field-combo">
+                    <select class="field-input" id="purSupplier" required>
+                      <option value="">Select dealer…</option>
+                    </select>
+                    <button type="button" class="btn btn-icon" id="btnGoToDealers" title="Add new dealer">
+                      <i data-lucide="plus"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field-label">GSTIN <em>(optional)</em></label>
+                    <input class="field-input" type="text" id="purSupplierGstin" placeholder="32AAAAA0000A1Z0">
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Bill No.</label>
+                    <input class="field-input" type="text" id="purBillNumber" placeholder="BILL-001" required>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field-label">Date</label>
+                    <input class="field-input" type="date" id="purDate" required>
+                  </div>
+                  <div class="field">
+                    <label class="field-label">GST Rate</label>
+                    <select class="field-input" id="purGstRate">
+                      <option value="0">0% (Nil)</option>
+                      <option value="5" selected>5% (Fabric)</option>
+                      <option value="12">12% (Apparel)</option>
+                      <option value="18">18% (Services)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field-label">Taxable (₹)</label>
+                    <input class="field-input" type="number" step="0.01" id="purTaxable" placeholder="0.00" required>
+                  </div>
+                  <div class="field">
+                    <label class="field-label">GST (₹)</label>
+                    <input class="field-input" type="number" step="0.01" id="purGstAmount" placeholder="0.00" readonly>
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Total (₹)</label>
+                    <input class="field-input" type="number" step="0.01" id="purTotal" placeholder="0.00" required>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="field-label">Attach Bill PDF</label>
+                  <div class="upload-zone">
+                    <i data-lucide="file-up"></i>
+                    <span>Click to upload PDF</span>
+                    <input type="file" id="purPdfFile" accept="application/pdf">
+                    <p id="pdfFileNameDisplay" class="upload-file-name"></p>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-gold btn-block" style="margin-top:4px;">
+                  <i data-lucide="plus-circle"></i> Log Expense
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="side-main-col">
+            <div class="panel">
+              <div class="panel-head">
+                Purchase Records
+                <div class="search-field mini">
+                  <i data-lucide="search"></i>
+                  <input type="text" id="searchPurchasesInput" placeholder="Search supplier or bill…">
+                </div>
+              </div>
+              <table class="tbl">
+                <thead><tr>
+                  <th class="cb-col"><input type="checkbox" id="selectAll_purchasesTableBody"></th>
+                  <th>Supplier</th><th>Bill</th><th>Date</th>
+                  <th>Taxable</th><th>GST</th><th>Total</th>
+                  <th>File</th><th>Del</th>
+                </tr></thead>
+                <tbody id="purchasesTableBody">
+                  <tr><td colspan="9" class="tbl-empty">No purchases logged.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ─── TAB: CLIENTS ─── -->
+      <section class="view" id="tab-clients">
+        <div class="side-form-layout">
+
+          <div class="side-form-col">
+            <div class="panel">
+              <div class="panel-head" id="crmFormHeading">Add Client</div>
+              <form id="clientForm">
+                <input type="hidden" id="clientIdHidden">
+                <div class="field">
+                  <label class="field-label">Business Name</label>
+                  <input class="field-input" type="text" id="cliName" placeholder="Jayalakshmi Wedding Center" required>
+                </div>
+                <div class="field">
+                  <label class="field-label">GSTIN <em>(recommended)</em></label>
+                  <input class="field-input" type="text" id="cliGstin" placeholder="32ABCDE1234F1Z5">
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field-label">PAN</label>
+                    <input class="field-input" type="text" id="cliPan" placeholder="ABCDE1234F">
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Phone</label>
+                    <input class="field-input" type="tel" id="cliPhone" placeholder="+91 98765 43210" required>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="field-label">Email</label>
+                  <input class="field-input" type="email" id="cliEmail" placeholder="billing@mall.com">
+                </div>
+                <div class="field">
+                  <label class="field-label">Billing Address</label>
+                  <textarea class="field-input" id="cliAddress" rows="2" placeholder="Street, building, area" required></textarea>
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field-label">City</label>
+                    <input class="field-input" type="text" id="cliCity" placeholder="Kochi">
+                  </div>
+                  <div class="field">
+                    <label class="field-label">State</label>
+                    <input class="field-input" type="text" id="cliState" placeholder="Kerala">
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field-label">Postal Code</label>
+                    <input class="field-input" type="text" id="cliPostalCode" placeholder="682001">
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Country</label>
+                    <input class="field-input" type="text" id="cliCountry" placeholder="India" value="India">
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-gold btn-block" id="btnClientSubmit">
+                  <i data-lucide="user-plus"></i> <span>Save Client</span>
+                </button>
+                <button type="button" class="btn btn-ghost btn-block" id="btnCancelClientEdit" style="margin-top:6px;display:none;">
+                  Cancel
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="side-main-col">
+            <div class="panel">
+              <div class="panel-head">
+                Client Directory
+                <div class="search-field mini">
+                  <i data-lucide="search"></i>
+                  <input type="text" id="searchClientsInput" placeholder="Search name or GSTIN…">
+                </div>
+              </div>
+              <table class="tbl">
+                <thead><tr>
+                  <th class="cb-col"><input type="checkbox" id="selectAll_clientsTableBody"></th>
+                  <th>Business</th><th>GSTIN</th><th>Phone</th>
+                  <th>Address</th><th>Volume</th><th style="text-align:center;">Actions</th>
+                </tr></thead>
+                <tbody id="clientsTableBody">
+                  <tr><td colspan="7" class="tbl-empty">No clients yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- ─── TAB: DEALERS ─── -->
+      <section class="view" id="tab-dealers">
+        <div class="side-form-layout">
+          <div class="side-form-col">
+            <div class="panel">
+              <div class="panel-head">Add / Edit Dealer</div>
+              <form id="dealerForm" style="padding:14px;">
+                <div class="field"><label class="field-label">Dealer / Supplier Name *</label><input class="field-input" type="text" id="dName" placeholder="Supplier name" required></div>
+                <div class="field-row">
+                  <div class="field"><label class="field-label">Phone</label><input class="field-input" type="text" id="dPhone" placeholder="+91 98765 43210"></div>
+                  <div class="field"><label class="field-label">Email</label><input class="field-input" type="email" id="dEmail" placeholder="dealer@email.com"></div>
+                </div>
+                <div class="field"><label class="field-label">Address</label><input class="field-input" type="text" id="dAddress" placeholder="City, State"></div>
+                <div class="field-row">
+                  <div class="field"><label class="field-label">GSTIN</label><input class="field-input" type="text" id="dGstin" placeholder="GSTIN"></div>
+                  <div class="field"><label class="field-label">Category</label><input class="field-input" type="text" id="dCategory" placeholder="Fabric, Thread, etc."></div>
+                </div>
+                <div class="field"><label class="field-label">Notes</label><textarea class="field-input" id="dNotes" rows="2" placeholder="Any notes..."></textarea></div>
+                <button type="submit" class="btn btn-gold" id="btnDealerSubmit"><i data-lucide="plus"></i><span>Add Dealer</span></button>
+              </form>
+            </div>
+          </div>
+          <div class="side-table-col">
+            <div class="panel">
+              <div class="panel-head">
+                All Dealers
+                <input type="text" id="searchDealersInput" class="field-input" style="width:180px;padding:4px 10px;font-size:0.8rem;" placeholder="Search dealers…">
+              </div>
+              <div class="panel-table-wrap">
+                <table class="tbl"><thead><tr>
+                  <th class="cb-col"><input type="checkbox" id="selectAll_dealersTableBody"></th>
+                  <th>Name</th><th>Phone</th><th>Category</th><th>GSTIN</th><th style="text-align:center;">Actions</th>
+                </tr></thead>
+                <tbody id="dealersTableBody"><tr><td colspan="6" class="tbl-empty">No dealers yet.</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── TAB: WORKERS ─── -->
+      <section class="view" id="tab-workers">
+        <div class="side-form-layout">
+          <div class="side-form-col">
+            <div class="panel">
+              <div class="panel-head" id="workerFormHeading">Add Worker</div>
+              <form id="workerForm" style="padding:14px;">
+                <input type="hidden" id="workerIdHidden">
+                <div class="field">
+                  <label class="field-label">Name *</label>
+                  <input class="field-input" type="text" id="workerName" placeholder="Full name" required>
+                </div>
+                <div class="field-row" style="margin-top:10px;">
+                  <div class="field">
+                    <label class="field-label">Phone</label>
+                    <input class="field-input" type="tel" id="workerPhone" placeholder="Phone number">
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Gender</label>
+                    <select class="field-input" id="workerGender">
+                      <option value="">Select…</option>
+                      <option>Male</option>
+                      <option>Female</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field-row" style="margin-top:10px;">
+                  <div class="field">
+                    <label class="field-label">Role</label>
+                    <input class="field-input" type="text" id="workerRole" placeholder="e.g. Tailor, Helper">
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Join Date</label>
+                    <input class="field-input" type="date" id="workerJoinDate">
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:14px;">
+                  <button type="submit" class="btn btn-gold"><i data-lucide="plus"></i><span>Save Worker</span></button>
+                  <button type="button" class="btn btn-outline" id="btnCancelWorkerEdit" style="display:none;">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="side-table-col">
+            <div class="panel">
+              <div class="panel-head">
+                All Workers
+                <input type="text" id="searchWorkersInput" class="field-input" style="width:180px;padding:4px 10px;font-size:0.8rem;" placeholder="Search workers…">
+              </div>
+              <div class="panel-table-wrap">
+                <table class="tbl"><thead><tr>
+                  <th class="cb-col"><input type="checkbox" id="selectAll_workersTableBody"></th>
+                  <th>Name</th><th>Phone</th><th>Gender</th><th>Role</th><th>Join Date</th><th style="text-align:center;">Actions</th>
+                </tr></thead>
+                <tbody id="workersTableBody"><tr><td colspan="7" class="tbl-empty">No workers yet.</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── TAB: EXPENSES ─── -->
+      <section class="view" id="tab-expenses">
+        <div class="side-form-layout">
+          <div class="side-form-col">
+            <div class="panel">
+              <div class="panel-head">Add Expense</div>
+              <form id="expenseForm" style="padding:14px;">
+                <div class="field-row">
+                  <div class="field"><label class="field-label">Category *</label>
+                    <select class="field-input" id="expCategory" required>
+                      <option value="">Select…</option>
+                      <option>Salary</option><option>Rent</option><option>Electricity</option>
+                      <option>Internet</option><option>Transport</option><option>Raw Material</option>
+                      <option>Equipment</option><option>Maintenance</option><option>Other</option>
+                    </select>
+                  </div>
+                  <div class="field"><label class="field-label">Amount (₹) *</label><input class="field-input" type="number" id="expAmount" placeholder="0.00" step="0.01" required></div>
+                </div>
+                <div class="field" id="workerSelectRow" style="display:none;margin-top:10px;">
+                  <label class="field-label">Worker</label>
+                  <select class="field-input" id="expWorkerSelect">
+                    <option value="">Select worker…</option>
+                  </select>
+                </div>
+                <div class="field-row" style="margin-top:10px;">
+                  <div class="field">
+                    <label class="field-label">GST Rate</label>
+                    <select class="field-input" id="expGstRate">
+                      <option value="0">No GST</option>
+                      <option value="5">5%</option>
+                      <option value="12">12%</option>
+                      <option value="18">18%</option>
+                      <option value="28">28%</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label class="field-label">GST Amount (₹)</label>
+                    <input class="field-input" type="number" id="expGstAmount" placeholder="0.00" step="0.01" readonly style="opacity:0.7;">
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Total Amount (₹)</label>
+                    <input class="field-input" type="number" id="expTotalAmount" placeholder="0.00" step="0.01" readonly style="opacity:0.7;font-weight:700;">
+                  </div>
+                </div>
+                <div class="field" style="margin-top:10px;"><label class="field-label">Description</label><input class="field-input" type="text" id="expDescription" placeholder="Brief description"></div>
+                <div class="field-row" style="margin-top:10px;">
+                  <div class="field"><label class="field-label">Date</label><input class="field-input" type="date" id="expDate"></div>
+                  <div class="field"><label class="field-label">Paid To</label><input class="field-input" type="text" id="expPaidTo" placeholder="Person / vendor"></div>
+                </div>
+                <div class="field" style="margin-top:10px;"><label class="field-label">Payment Mode</label>
+                  <select class="field-input" id="expPaymentMode">
+                    <option>Cash</option><option>Bank Transfer</option><option>UPI</option><option>Cheque</option>
+                  </select>
+                </div>
+                <div class="field" style="margin-top:10px;"><label class="field-label">Notes</label><textarea class="field-input" id="expNotes" rows="2"></textarea></div>
+                <div class="field" style="margin-top:10px;">
+                  <label class="field-label">Attach Invoice PDF <em>(optional)</em></label>
+                  <div class="upload-zone">
+                    <i data-lucide="file-up"></i>
+                    <span>Click to upload PDF</span>
+                    <input type="file" id="expPdfFile" accept="application/pdf">
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-gold" style="margin-top:12px;"><i data-lucide="plus"></i><span>Add Expense</span></button>
+              </form>
+            </div>
+          </div>
+          <div class="side-table-col">
+            <div class="panel">
+              <div class="panel-head">
+                All Expenses
+                <select class="field-input" id="filterExpenseCategory" style="width:160px;padding:4px 8px;font-size:0.8rem;">
+                  <option value="all">All categories</option>
+                  <option>Salary</option><option>Rent</option><option>Electricity</option>
+                  <option>Internet</option><option>Transport</option><option>Other</option>
+                </select>
+              </div>
+              <div class="panel-table-wrap">
+                <table class="tbl"><thead><tr>
+                  <th class="cb-col"><input type="checkbox" id="selectAll_expensesTableBody"></th>
+                  <th>Date</th><th>Category</th><th>Description</th><th>Paid To</th><th>Amount</th><th style="text-align:center;">Invoice</th><th style="text-align:center;">Actions</th>
+                </tr></thead>
+                <tbody id="expensesTableBody"><tr><td colspan="8" class="tbl-empty">No expenses yet.</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── TAB: INVENTORY ─── -->
+      <section class="view" id="tab-inventory">
+        <div class="side-form-layout">
+          <div class="side-form-col">
+            <div class="panel">
+              <div class="panel-head">Add / Edit Item</div>
+              <form id="inventoryForm" style="padding:14px;">
+                <div class="field"><label class="field-label">Item Name *</label><input class="field-input" type="text" id="invName" placeholder="e.g. Prayer Dress Fabric" required></div>
+                <div class="field-row">
+                  <div class="field"><label class="field-label">SKU</label><input class="field-input" type="text" id="invSku" placeholder="SKU-001"></div>
+                  <div class="field"><label class="field-label">Category</label><input class="field-input" type="text" id="invCategory" placeholder="Fabric, Thread…"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field"><label class="field-label">Unit</label>
+                    <select class="field-input" id="invUnit">
+                      <option>pcs</option><option>metres</option><option>kg</option><option>rolls</option><option>boxes</option>
+                    </select>
+                  </div>
+                  <div class="field"><label class="field-label">Current Stock</label><input class="field-input" type="number" id="invStock" placeholder="0" step="0.01"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field"><label class="field-label">Cost Price (₹)</label><input class="field-input" type="number" id="invCostPrice" placeholder="0.00" step="0.01"></div>
+                  <div class="field"><label class="field-label">Sell Price (₹)</label><input class="field-input" type="number" id="invSellPrice" placeholder="0.00" step="0.01"></div>
+                </div>
+                <div class="field"><label class="field-label">Low Stock Alert</label><input class="field-input" type="number" id="invLowStock" placeholder="5" value="5"></div>
+                <button type="submit" class="btn btn-gold"><i data-lucide="plus"></i><span>Add Item</span></button>
+              </form>
+            </div>
+          </div>
+          <div class="side-table-col">
+            <div class="panel">
+              <div class="panel-head">
+                Inventory
+                <input type="text" id="searchInventoryInput" class="field-input" style="width:180px;padding:4px 10px;font-size:0.8rem;" placeholder="Search items…">
+              </div>
+              <div class="panel-table-wrap">
+                <table class="tbl"><thead><tr>
+                  <th class="cb-col"><input type="checkbox" id="selectAll_inventoryTableBody"></th>
+                  <th>Item</th><th>Category</th><th>Unit</th><th>Stock</th><th>Cost</th><th>Sell Price</th><th style="text-align:center;">Actions</th>
+                </tr></thead>
+                <tbody id="inventoryTableBody"><tr><td colspan="8" class="tbl-empty">No items yet.</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── TAB: REPORTS ─── -->
+      <section class="view" id="tab-reports">
+        <div id="reportsContainer" style="padding:4px 0;">
+          <p style="padding:20px;color:#888;">Click to load reports…</p>
+        </div>
+      </section>
+
+      <!-- ─── TAB: SETTINGS ─── -->
+      <section class="view" id="tab-settings">
+        <div class="side-form-layout">
+
+          <!-- Billed From -->
+          <div class="side-form-col">
+            <div class="panel">
+              <div class="panel-head">Billed From (Your Business Details)</div>
+              <form id="billedFromForm">
+                <div class="field">
+                  <label class="field-label">Business Name</label>
+                  <input class="field-input" type="text" id="setBizName" placeholder="WELIZA DESIGN" required>
+                </div>
+                <div class="field">
+                  <label class="field-label">Address</label>
+                  <input class="field-input" type="text" id="setBizAddress" placeholder="Kozhikode, Kerala, India — 673620">
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field-label">GSTIN</label>
+                    <input class="field-input" type="text" id="setBizGstin" placeholder="32HRJPS4251J1ZF">
+                  </div>
+                  <div class="field">
+                    <label class="field-label">PAN</label>
+                    <input class="field-input" type="text" id="setBizPan" placeholder="HRJPS4251J">
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field-label">Email</label>
+                    <input class="field-input" type="email" id="setBizEmail" placeholder="welizadesign@gmail.com">
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Phone</label>
+                    <input class="field-input" type="text" id="setBizPhone" placeholder="+91 75929 45893">
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-gold" style="margin-top:8px;">
+                  <i data-lucide="save"></i> Save Business Details
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Bank Details -->
+          <div class="side-form-col">
+            <div class="panel">
+              <div class="panel-head">Bank Details</div>
+              <form id="bankDetailsForm">
+                <div class="field">
+                  <label class="field-label">Account Name</label>
+                  <input class="field-input" type="text" id="setBankAccName" placeholder="WELIZA DESIGN">
+                </div>
+                <div class="field">
+                  <label class="field-label">Account Number</label>
+                  <input class="field-input" type="text" id="setBankAccNum" placeholder="8230953768">
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field-label">IFSC Code</label>
+                    <input class="field-input" type="text" id="setBankIfsc" placeholder="IDIB000K213">
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Account Type</label>
+                    <input class="field-input" type="text" id="setBankAccType" placeholder="Current">
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="field-label">Bank Name</label>
+                  <input class="field-input" type="text" id="setBankName" placeholder="INDIAN BANK">
+                </div>
+                <button type="submit" class="btn btn-gold" style="margin-top:8px;">
+                  <i data-lucide="save"></i> Save Bank Details
+                </button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+
+          <!-- Folder Setup -->
+          <div style="margin-top:20px;">
+            <div class="panel">
+              <div class="panel-head">Local Folder Setup <span style="font-size:0.7rem;color:#999;font-weight:400;text-transform:none;">— Chrome/Edge only</span></div>
+              <p style="font-size:0.83rem;color:#888;margin:0 0 14px;">Choose a base folder on your PC once. When you click "Export All Data", files will be saved there.</p>
+              <div id="folderStatusRow" style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+                <div id="folderStatusBadge" style="font-size:0.82rem;padding:5px 12px;border-radius:20px;background:#2a2a2a;color:#888;">No folder selected</div>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-gold" id="btnChooseFolder">
+                  <i data-lucide="folder-open"></i> Choose Base Folder
+                </button>
+                <button class="btn btn-outline" id="btnCreateSubfolders" style="display:none;">
+                  <i data-lucide="folder-plus"></i> Create Subfolders
+                </button>
+              </div>
+
+              <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border-lo);">
+                <button class="btn btn-gold btn-block" id="btnExportAllData">
+                  <i data-lucide="download"></i> Export All Data Now
+                </button>
+                <div id="lastExportNote" style="margin-top:10px;font-size:0.78rem;color:#888;"></div>
+              </div>
+
+              <div style="margin-top:14px;font-size:0.78rem;color:#666;line-height:1.8;">
+                Clicking Export saves these files to your folder:<br>
+                📁 <code>Invoices/invoices.csv</code> &nbsp;
+                📁 <code>Purchases/purchases.csv</code> &nbsp;
+                📁 <code>Clients/clients.csv</code> &nbsp;
+                📁 <code>Dealers/dealers.csv</code> &nbsp;
+                📁 <code>Expenses/expenses.csv</code>
+              </div>
+            </div>
+          </div>
+
+      </section>
+
+    </div><!-- /main -->
+  </div><!-- /shell -->
+
+  <!-- Quick Add Client Modal -->
+  <div class="modal-overlay" id="inlineClientModal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-head">
+        <span>Quick Add Client</span>
+        <button class="modal-close" id="inlineModalClose"><i data-lucide="x"></i></button>
+      </div>
+      <form id="inlineClientForm">
+        <div class="field"><label class="field-label">Business Name</label><input class="field-input" type="text" id="inlineName" required></div>
+        <div class="field"><label class="field-label">GSTIN</label><input class="field-input" type="text" id="inlineGstin"></div>
+        <div class="field"><label class="field-label">Phone</label><input class="field-input" type="tel" id="inlinePhone" required></div>
+        <div class="field"><label class="field-label">Address</label><textarea class="field-input" id="inlineAddress" rows="2" required></textarea></div>
+        <button type="submit" class="btn btn-gold btn-block" style="margin-top:8px;">Save & Select</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Manage Item Presets Modal -->
+  <div class="modal-overlay" id="itemPresetsModal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-head">
+        <span>Manage Item Presets</span>
+        <button class="modal-close" id="presetsModalClose"><i data-lucide="x"></i></button>
+      </div>
+      <p style="font-size:0.8rem;color:#999;margin:-4px 0 14px;">
+        Save commonly used products/services so typing the name auto-fills rate &amp; GST%. You can still edit any value after it's filled in.
+      </p>
+      <form id="presetAddForm" class="field-row" style="align-items:flex-end;">
+        <div class="field" style="flex:2;">
+          <label class="field-label">Item Name</label>
+          <input class="field-input" type="text" id="presetName" placeholder="Prayer Dress" required>
+        </div>
+        <div class="field" style="flex:1;">
+          <label class="field-label">Rate ₹</label>
+          <input class="field-input" type="number" step="0.01" id="presetRate" placeholder="800" required>
+        </div>
+        <div class="field" style="flex:1;">
+          <label class="field-label">GST%</label>
+          <select class="field-input" id="presetGstRate">
+            <option value="0">0%</option>
+            <option value="5" selected>5%</option>
+            <option value="12">12%</option>
+            <option value="18">18%</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-gold" style="height:42px;"><i data-lucide="plus"></i></button>
+      </form>
+      <div class="divider" style="margin:14px 0;"></div>
+      <div id="presetsListContainer" style="max-height:260px;overflow-y:auto;">
+        <p style="text-align:center;color:#888;font-size:0.85rem;">No presets yet.</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Attach PDF to Invoice Modal -->
+  <div class="modal-overlay" id="attachPdfModal" style="display:none;">
+    <div class="modal-card" style="max-width:420px;">
+      <div class="modal-head">
+        <span>Attach PDF to Invoice</span>
+        <button class="modal-close" id="attachPdfModalClose"><i data-lucide="x"></i></button>
+      </div>
+      <div style="padding:4px 0 14px;">
+        <p style="font-size:0.82rem;color:#888;margin:0 0 16px;">Select an invoice and upload a PDF file (bill, receipt, or any document) to attach it.</p>
+        <div class="field">
+          <label class="field-label">Select Invoice</label>
+          <select class="field-input" id="attachPdfInvoiceSelect">
+            <option value="">Loading invoices...</option>
+          </select>
+        </div>
+        <div class="field" style="margin-top:12px;">
+          <label class="field-label">PDF File</label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;border:1.5px dashed #c8d8d0;border-radius:8px;padding:14px 16px;background:#f9fefb;transition:border-color 0.2s;" id="attachPdfDropZone">
+            <i data-lucide="file-up" style="width:20px;height:20px;color:#1F5138;flex-shrink:0;"></i>
+            <span id="attachPdfFileName" style="font-size:0.85rem;color:#555;">Click to choose a PDF&hellip;</span>
+            <input type="file" id="attachPdfFileInput" accept="application/pdf" style="display:none;">
+          </label>
+        </div>
+        <div id="attachPdfError" style="display:none;font-size:0.82rem;color:#c0392b;margin-top:8px;"></div>
+        <button class="btn btn-gold btn-block" style="margin-top:16px;" id="attachPdfSaveBtn">
+          <i data-lucide="paperclip"></i> Attach PDF
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- External Invoice Modal -->
+  <div class="modal-overlay" id="externalInvoiceModal" style="display:none;">
+    <div class="modal-card" style="max-width:500px;">
+      <div class="modal-head">
+        <span>Add External Invoice</span>
+        <button class="modal-close" id="extInvModalClose"><i data-lucide="x"></i></button>
+      </div>
+      <div style="padding:16px 18px 18px;">
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="field">
+            <label class="field-label">Invoice Number *</label>
+            <input class="field-input" type="text" id="extInvNumber" placeholder="e.g. WEL-2025-001">
+          </div>
+          <div class="field">
+            <label class="field-label">Date *</label>
+            <input class="field-input" type="date" id="extInvDate">
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:12px;">
+          <label class="field-label">Client *</label>
+          <select class="field-input" id="extInvClientSelect">
+            <option value="">Select client…</option>
+          </select>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px;">
+          <div class="field">
+            <label class="field-label">Taxable Amount *</label>
+            <input class="field-input" type="number" id="extInvTaxable" placeholder="0.00" step="0.01" min="0">
+          </div>
+          <div class="field">
+            <label class="field-label">GST Rate</label>
+            <select class="field-input" id="extInvGstRate">
+              <option value="0">0%</option>
+              <option value="5" selected>5%</option>
+              <option value="12">12%</option>
+              <option value="18">18%</option>
+              <option value="28">28%</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">GST Amount</label>
+            <input class="field-input" type="number" id="extInvGst" placeholder="0.00" step="0.01" min="0" readonly style="opacity:0.7;cursor:not-allowed;">
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+          <div class="field">
+            <label class="field-label">Status</label>
+            <select class="field-input" id="extInvStatus">
+              <option value="Paid">Paid</option>
+              <option value="Pending">Pending</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">Grand Total</label>
+            <input class="field-input" type="text" id="extInvTotal" placeholder="0.00" readonly style="opacity:0.7;cursor:not-allowed;font-weight:600;">
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:12px;">
+          <label class="field-label">Invoice PDF *</label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;border:1.5px dashed #c8d8d0;border-radius:8px;padding:12px 16px;background:#f9fefb;" id="extInvPdfZone">
+            <i data-lucide="file-up" style="width:18px;height:18px;color:#1F5138;flex-shrink:0;"></i>
+            <span id="extInvPdfName" style="font-size:0.85rem;color:#555;">Click to choose a PDF&hellip;</span>
+            <input type="file" id="extInvPdfInput" accept="application/pdf" style="display:none;">
+          </label>
+        </div>
+
+        <div id="extInvError" style="display:none;font-size:0.82rem;color:#c0392b;margin-top:8px;"></div>
+        <button class="btn btn-gold btn-block" style="margin-top:16px;" id="extInvSaveBtn">
+          <i data-lucide="save"></i> Save External Invoice
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Action Bar -->
+  <div class="bulk-bar" id="bulkBar" style="display:none;">
+    <span class="bulk-bar-count" id="bulkCount">0 selected</span>
+    <div class="bulk-bar-actions" id="bulkActions"></div>
+    <button class="bulk-bar-close" id="bulkBarClose" title="Clear selection"><i data-lucide="x"></i></button>
+  </div>
+
+  <!-- Monthly Export Reminder Banner -->
+  <div id="exportReminderBanner" style="display:none;align-items:center;gap:12px;background:#1F5138;color:#fff;padding:12px 20px;font-size:0.85rem;position:sticky;top:0;z-index:100;">
+    <i data-lucide="calendar-clock" style="width:18px;height:18px;flex-shrink:0;"></i>
+    <span style="flex:1;">📦 New month — remember to export your data to keep your files up to date.</span>
+    <button class="btn btn-sm" id="bannerExportBtn" style="background:#fff;color:#1F5138;font-weight:600;flex-shrink:0;">Export Now</button>
+    <button onclick="document.getElementById('exportReminderBanner').style.display='none'" style="background:none;border:none;color:#fff;cursor:pointer;padding:4px;flex-shrink:0;"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="supabase.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
