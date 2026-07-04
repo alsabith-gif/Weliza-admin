@@ -752,7 +752,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     transition: transform 0.25s ease;
     z-index: 220;
     box-shadow: 4px 0 24px rgba(0,0,0,0.18);
-    padding-top: 60px;
+    padding-top: 50px;
   }
   .sidebar.open { transform: translateX(0); }
   .main { margin-left: 0; }
