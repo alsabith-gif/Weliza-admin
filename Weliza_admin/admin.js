@@ -2635,7 +2635,7 @@ function checkGSTReminders() {
   // GSTR-1 due 11th — remind from 1st (10 days before)
   const showGstr1 = !gstr1Filed && day >= 1 && day <= 11;
   // GSTR-3B due 20th — remind from 10th, BUT also show if GSTR-1 is showing
-  const showGstr3b = !gstr3bFiled && (showGstr1 || (day >= 10 && day <= 20));
+  const showGstr3b = !gstr3bFiled && day >= 10 && day <= 20;
 
   const gstr1Due  = new Date(year, month, 11);
   const gstr3bDue = new Date(year, month, 20);
