@@ -818,7 +818,7 @@ function buildInvoiceHTML(inv, biz, bank) {
   // ─── WATERMARK CONTROLS — change these two values to adjust the
   // logo watermark that appears centered behind the invoice ───
   const WATERMARK_OPACITY = 0.07;  // 0 = invisible, 1 = fully solid. Try 0.05–0.15
-  const WATERMARK_SIZE_PX = 465;   // width of the watermark in px. Try 300–550
+  const WATERMARK_SIZE_PX = 550;   // width of the watermark in px. Try 300–550
 
   const items = inv.items || [];
   const cgst = parseFloat(inv.gst_total||0) / 2;
